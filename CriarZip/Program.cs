@@ -63,24 +63,22 @@ namespace CriarZip
             string python = Path.Combine(dir, @"python\");
             string release = Path.Combine(dir, @"release\");
 
-            Zip zip_VLIBRAS    = new Zip(VLIBRAS, Path.Combine(enviar, "VLIBRAS.zip"), true);
-            //Zip zip_requisitos = new Zip(requisitos, Path.Combine(enviar, "requisitos.zip"), true);
-            Zip zip_python     = new Zip(python, Path.Combine(enviar, "python.zip"), true);
+            List<Zip> zips = new List<Zip>();
+            zips.Add(new Zip(VLIBRAS, Path.Combine(enviar, "VLIBRAS.zip"), true));
+            zips.Add(new Zip(python, Path.Combine(enviar, "python.zip"), true));
 
-            Thread t_VLIBRAS    = new Thread(new ThreadStart(zip_VLIBRAS.zipFromDirectory));
-            //Thread t_requisitos = new Thread(new ThreadStart(zip_requisitos.zipFromDirectory));
-            Thread t_python     = new Thread(new ThreadStart(zip_python.zipFromDirectory));
-
-            t_VLIBRAS.Start();
-            //t_requisitos.Start();
-            t_python.Start();
-
+            List<Thread> threads = new List<Thread>();
+            foreach(Zip zip in zips){
+                threads.Add(new Thread(new ThreadStart(zip.zipFromDirectory)));
+            }
+            foreach(Thread thread in threads){
+                thread.Start();
+            }
             Thread.Sleep(1);
-
-            t_VLIBRAS.Join();
-            //t_requisitos.Join();
-            t_python.Join();
-
+            foreach(Thread thread in threads){
+                thread.Join();
+            }
+            
             //version.json e versionPython.json
             JavaScriptSerializer serializer = new JavaScriptSerializer();
 
