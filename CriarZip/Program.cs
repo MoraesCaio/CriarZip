@@ -78,38 +78,22 @@ namespace CriarZip
             foreach(Thread thread in threads){
                 thread.Join();
             }
-            
+
             //version.json e versionPython.json
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            Json version = new Json(enviar, @"version.json");
+            Json versionPython = new Json(enviar, @"versionPython.json");
 
-            StreamReader sr = new StreamReader(Path.Combine(enviar,@"version.json"));
-            string version = sr.ReadToEnd();
-            dynamic arrayVersion = serializer.DeserializeObject(version);
-            arrayVersion["Revision"] += 1;
-            string novoArrayVersion = serializer.Serialize(arrayVersion);
-            sr.Close();
-            File.WriteAllText(Path.Combine(enviar,@"version.json"), novoArrayVersion);
+            List<Json> versionFiles = new List<Json>();
+            versionFiles.Add(version);
+            versionFiles.Add(versionPython);
 
-            sr = new StreamReader(Path.Combine(enviar,@"versionPython.json"));
-            string pythonJson = sr.ReadToEnd();
-            dynamic arrayPython = serializer.DeserializeObject(pythonJson);
-            arrayPython["Revision"] += 1;
-            string novoArrayPython = serializer.Serialize(arrayPython);
-            sr.Close();
-            File.WriteAllText(Path.Combine(enviar,@"versionPython.json"), novoArrayPython);
-
-            int vMaj = Convert.ToInt32(arrayVersion["Major"]);
-            int vMin = Convert.ToInt32(arrayVersion["Minor"]);
-            int vBui = Convert.ToInt32(arrayVersion["Build"]);
-            int vRev = Convert.ToInt32(arrayVersion["Revision"]);
-
-            int pMaj = Convert.ToInt32(arrayPython["Major"]);
-            int pMin = Convert.ToInt32(arrayPython["Minor"]);
-            int pBui = Convert.ToInt32(arrayPython["Build"]);
-            int pRev = Convert.ToInt32(arrayPython["Revision"]);
-
-            Console.WriteLine("\nversion.json\nMajor: {0}\nMinor: {1}\nBuild: {2}\nRevision: {3}", vMaj, vMin, vBui, vRev);
-            Console.WriteLine("\nversionPython.json\nMajor: {0}\nMinor: {1}\nBuild: {2}\nRevision: {3}", pMaj, pMin, pBui, pRev);
+            foreach(Json versionFile in versionFiles){
+                versionFile.Read();
+                versionFile.IncrementRevision(1);
+                versionFile.Write();
+                Console.WriteLine("\n{0}\nMajor: {1}\nMinor: {2}\nBuild: {3}\nRevision: {4}", versionFile.fileName, versionFile.major,
+                    versionFile.minor, versionFile.build, versionFile.revision);
+            }
 
             //sinais
             if(File.Exists(Path.Combine(release, "sinais.txt"))){
@@ -120,6 +104,60 @@ namespace CriarZip
 
             Console.WriteLine("Concluído. Aperte alguma tecla para encerrar.");
             Console.ReadKey();
+        }
+    }
+    public class Json{
+        public string path;
+        public string fileName;
+        public int major;
+        public int minor;
+        public int build;
+        public int revision;
+
+        private StreamReader sr;
+        private string version;
+        private dynamic arrayVersion;
+        private JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+        public Json(string path, string fileName){
+            if(!File.Exists(Path.Combine(path, fileName))){
+                throw new System.IO.IOException("O arquivo " + fileName + " não existe no diretório " + path + ".\n");
+            }
+            this.path = path;
+            this.fileName = fileName;
+        }
+
+        public void Read(){
+            sr = new StreamReader(Path.Combine(path, fileName));
+            version = sr.ReadToEnd();
+            sr.Close();
+            arrayVersion = serializer.DeserializeObject(version);
+            major = Convert.ToInt32(arrayVersion["Major"]);
+            minor = Convert.ToInt32(arrayVersion["Minor"]);
+            build = Convert.ToInt32(arrayVersion["Build"]);
+            revision = Convert.ToInt32(arrayVersion["Revision"]);
+        }
+
+        public void IncrementMajor(int i){
+            arrayVersion["Major"] += i;
+            major = Convert.ToInt32(arrayVersion["Major"]);
+        }
+        public void IncrementMinor(int i){
+            arrayVersion["Minor"] += i;
+            minor = Convert.ToInt32(arrayVersion["Minor"]);
+        }
+        public void IncrementBuild(int i){
+            arrayVersion["Build"] += i;
+            build = Convert.ToInt32(arrayVersion["Build"]);
+        }
+        public void IncrementRevision(int i){
+            arrayVersion["Revision"] += i;
+            revision = Convert.ToInt32(arrayVersion["Revision"]);
+        }
+
+        public void Write(){
+            string novaVersao = serializer.Serialize(arrayVersion);
+            File.WriteAllText(Path.Combine(path, fileName), novaVersao);
         }
     }
 }
