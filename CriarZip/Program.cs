@@ -58,7 +58,6 @@ namespace CriarZip
             //PASTAS
             string dir = Directory.GetCurrentDirectory();
             string VLIBRAS = Path.Combine(dir, @"VLIBRAS\");
-            //string requisitos = Path.Combine(dir, @"requisitos\");
             string enviar = Path.Combine(dir, @"enviar\");
             string python = Path.Combine(dir, @"python\");
             string release = Path.Combine(dir, @"release\");
@@ -91,8 +90,11 @@ namespace CriarZip
                 versionFile.Read();
                 versionFile.IncrementRevision(1);
                 versionFile.Write();
-                Console.WriteLine("\n{0}\nMajor: {1}\nMinor: {2}\nBuild: {3}\nRevision: {4}", versionFile.fileName, versionFile.major,
-                    versionFile.minor, versionFile.build, versionFile.revision);
+                Console.WriteLine("\n{0}",versionFile.fileName);
+                Console.WriteLine("Major: {1}",versionFile.major);
+                Console.WriteLine("Minor: {2}",versionFile.minor);
+                Console.WriteLine("Build: {3}",versionFile.build);
+                Console.WriteLine("Revision: {4}", versionFile.revision);
             }
 
             //sinais
