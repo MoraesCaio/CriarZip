@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Web.Script.Serialization;
 
+/*CriarZip is intended for:
+ *  - creating the Zip Files (multithreading),
+ *  - incrementing the version files,
+ *  - check if the file sinais.txt exists.
+ *  Author: Caio Moraes
+ *  GitHub: MoraesCaio
+ *  email:  caiomoraes@msn.com
+ **/
 namespace CriarZip
 {
     public static class Writer{
@@ -17,68 +20,26 @@ namespace CriarZip
             }
         }
     }
-    public class Zip{
-        public string sourceDirectoryName;
-        public string destinationArchiveFileName;
-        public bool overwrite;
 
-        public void zipFromDirectory(){
-            string msg = "Iniciando criação do arquivo:\n"+this.destinationArchiveFileName+"\nSobreescrever arquivo: " + (overwrite? "Sim.":"Não.")+"\n";
-            Writer.write(msg);
-            try{
-                if(File.Exists(this.destinationArchiveFileName)){
-                    if(overwrite){
-                        File.Delete(this.destinationArchiveFileName);
-                    }else{
-                        return;
-                    }
-                }
-                ZipFile.CreateFromDirectory(this.sourceDirectoryName, this.destinationArchiveFileName);
-                Writer.write("Criação do "+this.destinationArchiveFileName+" bem sucedida.");
-            }catch(Exception e){
-                Writer.write("Erro na criação do zip:\n"+this.destinationArchiveFileName+"\nErro:"+e+"\nAperte alguma tecla para continuar.");
-                Console.ReadKey();
-            }
-        }
-
-        public Zip(string sourceDirectoryName, string destinationArchiveFileName, bool overwrite){
-            this.sourceDirectoryName = sourceDirectoryName;
-            this.destinationArchiveFileName = destinationArchiveFileName;
-            this.overwrite = overwrite;
-        }
-        public Zip(string sourceDirectoryName, string destinationArchiveFileName){
-            this.sourceDirectoryName = sourceDirectoryName;
-            this.destinationArchiveFileName = destinationArchiveFileName;
-            this.overwrite = false;
-        }
-    }
+    /*This class controls the main flow.*/
     static class Program{
         static void Main(string[] args)
         {
-            //PASTAS
+            //FOLDERS
             string dir = Directory.GetCurrentDirectory();
             string VLIBRAS = Path.Combine(dir, @"VLIBRAS\");
             string enviar = Path.Combine(dir, @"enviar\");
             string python = Path.Combine(dir, @"python\");
             string release = Path.Combine(dir, @"release\");
 
+			//ZIPS
             List<Zip> zips = new List<Zip>();
             zips.Add(new Zip(VLIBRAS, Path.Combine(enviar, "VLIBRAS.zip"), true));
             zips.Add(new Zip(python, Path.Combine(enviar, "python.zip"), true));
 
-            List<Thread> threads = new List<Thread>();
-            foreach(Zip zip in zips){
-                threads.Add(new Thread(new ThreadStart(zip.zipFromDirectory)));
-            }
-            foreach(Thread thread in threads){
-                thread.Start();
-            }
-            Thread.Sleep(1);
-            foreach(Thread thread in threads){
-                thread.Join();
-            }
+			Zip.createZips(zips);
 
-            //version.json e versionPython.json
+            //JSONS
             Json version = new Json(enviar, @"version.json");
             Json versionPython = new Json(enviar, @"versionPython.json");
 
@@ -86,18 +47,9 @@ namespace CriarZip
             versionFiles.Add(version);
             versionFiles.Add(versionPython);
 
-            foreach(Json versionFile in versionFiles){
-                versionFile.Read();
-                versionFile.IncrementRevision(1);
-                versionFile.Write();
-                Console.WriteLine("\n{0}",versionFile.fileName);
-                Console.WriteLine("Major: {1}",versionFile.major);
-                Console.WriteLine("Minor: {2}",versionFile.minor);
-                Console.WriteLine("Build: {3}",versionFile.build);
-                Console.WriteLine("Revision: {4}", versionFile.revision);
-            }
+            Json.IncrementVersionFiles(versionFiles);
 
-            //sinais
+            //SINAIS.TXT
             if(File.Exists(Path.Combine(release, "sinais.txt"))){
                 Console.WriteLine("\nO arquivo de lista de sinais está presente na pasta release.");
             }else{
@@ -108,58 +60,5 @@ namespace CriarZip
             Console.ReadKey();
         }
     }
-    public class Json{
-        public string path;
-        public string fileName;
-        public int major;
-        public int minor;
-        public int build;
-        public int revision;
-
-        private StreamReader sr;
-        private string version;
-        private dynamic arrayVersion;
-        private JavaScriptSerializer serializer = new JavaScriptSerializer();
-
-        public Json(string path, string fileName){
-            if(!File.Exists(Path.Combine(path, fileName))){
-                throw new System.IO.IOException("O arquivo " + fileName + " não existe no diretório " + path + ".\n");
-            }
-            this.path = path;
-            this.fileName = fileName;
-        }
-
-        public void Read(){
-            sr = new StreamReader(Path.Combine(path, fileName));
-            version = sr.ReadToEnd();
-            sr.Close();
-            arrayVersion = serializer.DeserializeObject(version);
-            major = Convert.ToInt32(arrayVersion["Major"]);
-            minor = Convert.ToInt32(arrayVersion["Minor"]);
-            build = Convert.ToInt32(arrayVersion["Build"]);
-            revision = Convert.ToInt32(arrayVersion["Revision"]);
-        }
-
-        public void IncrementMajor(int i){
-            arrayVersion["Major"] += i;
-            major = Convert.ToInt32(arrayVersion["Major"]);
-        }
-        public void IncrementMinor(int i){
-            arrayVersion["Minor"] += i;
-            minor = Convert.ToInt32(arrayVersion["Minor"]);
-        }
-        public void IncrementBuild(int i){
-            arrayVersion["Build"] += i;
-            build = Convert.ToInt32(arrayVersion["Build"]);
-        }
-        public void IncrementRevision(int i){
-            arrayVersion["Revision"] += i;
-            revision = Convert.ToInt32(arrayVersion["Revision"]);
-        }
-
-        public void Write(){
-            string novaVersao = serializer.Serialize(arrayVersion);
-            File.WriteAllText(Path.Combine(path, fileName), novaVersao);
-        }
-    }
+    
 }
