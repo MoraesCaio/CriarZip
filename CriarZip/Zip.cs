@@ -12,17 +12,22 @@ namespace CriarZip
      * GitHub: MoraesCaio
      * email:  caiomoraes@msn.com
 	 **/
+	
+
 	public class Zip
 	{
 		public string sourceDirectoryName;
 		public string destinationArchiveFileName;
 		public bool overwrite;
 
+		
+
 		/* Creates the zipfile and behaves diferently depending on whether overwrite is true or not.*/
 		private void zipFromDirectory()
 		{
-			string msg = "Iniciando criação do arquivo:\n" + this.destinationArchiveFileName + "\nSobreescrever arquivo: " + (overwrite ? "Sim." : "Não.") + "\n";
-			Writer.write(msg);
+			Writer.write("Iniciando criação do arquivo:");
+			Writer.write(this.destinationArchiveFileName);
+			Writer.write("Sobreescrever arquivo: " + (overwrite ? "Sim." : "Não."));
 			try
 			{
 				if (File.Exists(this.destinationArchiveFileName))
