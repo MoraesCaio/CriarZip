@@ -25,9 +25,7 @@ namespace CriarZip
 		/* Creates the zipfile and behaves diferently depending on whether overwrite is true or not.*/
 		private void zipFromDirectory()
 		{
-			Writer.write("Iniciando criação do arquivo:");
-			Writer.write(this.destinationArchiveFileName);
-			Writer.write("Sobreescrever arquivo: " + (overwrite ? "Sim." : "Não."));
+			Writer.write("Iniciando criação do arquivo:" + this.destinationArchiveFileName + Environment.NewLine + "Sobreescrever arquivo: " + (overwrite ? "Sim." : "Não."));
 			try
 			{
 				if (File.Exists(this.destinationArchiveFileName))

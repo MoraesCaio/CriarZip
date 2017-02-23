@@ -11,7 +11,7 @@ namespace CriarZip
 			lock (aLock)
 			{
 				Console.WriteLine(msg);
-				GUI.textBox1.AppendText(msg + "\n");
+				GUI.textBox1.AppendText(msg + Environment.NewLine);
 			}
 		}
 	}
