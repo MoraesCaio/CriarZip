@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace CriarZip
 {
-    
+
 	/*This class controls the main flow.*/
 	static class Program
 	{
@@ -19,8 +19,8 @@ namespace CriarZip
 			catch (Exception e)
 			{
 				MessageBox.Show(e.Message);
-			}            
+			}
         }
     }
-    
+
 }

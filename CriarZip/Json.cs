@@ -14,7 +14,7 @@ namespace CriarZip
 	 *	}
 	 *	The indentation is not a problem. However, when writing files, it does not maintains it indented.
 	 *	An instance of it represents a json file.
-	 *		 * Author: Caio Moraes
+	 * Author: Caio Moraes
      * GitHub: MoraesCaio
      * email:  caiomoraes@msn.com
 	 **/

@@ -43,16 +43,6 @@ namespace CriarZip
 			textBox1.Text += value;
 		}
 
-		void SampleFunction()
-		{
-			// Gets executed on a seperate thread and 
-			// doesn't block the UI while sleeping
-			for (int i = 0; i < 5; i++)
-			{
-				AppendTextBox("hi.  ");
-				Thread.Sleep(1000);
-			}
-		}
 
 		private void button1_Click(object sender, EventArgs e)
 		{
@@ -64,17 +54,18 @@ namespace CriarZip
 			string enviar = Path.Combine(dir, @"enviar\");
 			string python = Path.Combine(dir, @"python\");
 			string release = Path.Combine(dir, @"release\");
+            Predicate<string> filterZip = fileName => !fileName.Contains(".git");
 
-			//ZIPS
-			List<Zip> zips = new List<Zip>();
-			zips.Add(new Zip(VLIBRAS, Path.Combine(enviar, "VLIBRAS.zip"), true));
-			zips.Add(new Zip(python, Path.Combine(enviar, "python.zip"), true));
+            //ZIPS
+            List<Zip> zips = new List<Zip>();
+			zips.Add(new Zip(VLIBRAS, Path.Combine(enviar, "VLIBRAS.zip"), true, filterZip));
+			zips.Add(new Zip(python, Path.Combine(enviar, "python.zip"), true, filterZip));
 
 			//JSONS
 			List<Json> versionFiles = new List<Json>();
 			versionFiles.Add(new Json(enviar, @"version.json"));
 			versionFiles.Add(new Json(enviar, @"versionPython.json"));
-			
+
 			Zip.createZips(zips);
 
 			Json.IncrementVersionFiles(versionFiles);
