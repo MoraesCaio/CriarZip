@@ -49,11 +49,13 @@ namespace CriarZip
 			textBox1.Text = "";
 
 			//FOLDERS
-			string dir = Directory.GetCurrentDirectory();
-			string VLIBRAS = Path.Combine(dir, @"VLIBRAS\");
-			string enviar = Path.Combine(dir, @"enviar\");
-			string python = Path.Combine(dir, @"python\");
-			string release = Path.Combine(dir, @"release\");
+            //"..\Deploy-VLibras"
+			string dir = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, @"Deploy-VLibras\");
+            string curDir = Directory.GetCurrentDirectory();
+            string VLIBRAS = Path.Combine(dir, @"VLibras\");
+			string python = Path.Combine(dir, @"Python-portable\");
+			string enviar = Path.Combine(curDir, @"enviar\");
+			string release = Path.Combine(curDir, @"release\");
             Predicate<string> filterZip = fileName => !fileName.Contains(".git");
 
             //ZIPS

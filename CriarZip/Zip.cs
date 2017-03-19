@@ -148,7 +148,7 @@ namespace CriarZip
 			{
 				string msg = "O diretório " + sourceDirectoryName + " não existe!\n";
 				Writer.write(msg);
-				throw new System.IO.IOException(msg);
+				throw new IOException(msg);
 			}
 			this.sourceDirectoryName = sourceDirectoryName;
 			this.destinationArchiveFileName = destinationArchiveFileName;
